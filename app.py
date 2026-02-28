@@ -58,11 +58,18 @@ def load_all_docs():
 def load_saved():
     opts = storage_options()
     try:
-        return (
+        df = (
             DeltaTable(f"{ONELAKE_BASE}/gold_manual_contract_status", storage_options=opts)
             .to_pandas()
             .sort_values("updated_timestamp", ascending=False)
         )
+        # แปลง UTC → Bangkok
+        df["updated_timestamp"] = (
+            pd.to_datetime(df["updated_timestamp"], utc=True)
+            .dt.tz_convert("Asia/Bangkok")
+            .dt.tz_localize(None)  # ซ่อน timezone label ออก
+        )
+        return df
     except Exception:
         return pd.DataFrame(columns=["purchasing_doc_no", "user_status", "purchaser_status", "updated_timestamp"])
 
