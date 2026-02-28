@@ -71,7 +71,7 @@ def save_status(doc_no: str, user_status: str, purchaser_status: str):
         "purchasing_doc_no": doc_no,
         "user_status":       user_status,
         "purchaser_status":  purchaser_status,
-        "updated_timestamp": datetime.now(),
+        "updated_timestamp": datetime.now(pytz.timezone("Asia/Bangkok")),
     }])
 
     try:
