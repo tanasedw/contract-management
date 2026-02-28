@@ -1,9 +1,9 @@
 import streamlit as st
 import pandas as pd
 import requests
+import pytz
 from deltalake import DeltaTable, write_deltalake
 from datetime import datetime
-import pytz
 
 # ───────────────────────────────────────────
 # CONFIG
@@ -63,11 +63,10 @@ def load_saved():
             .to_pandas()
             .sort_values("updated_timestamp", ascending=False)
         )
-        # แปลง UTC → Bangkok
         df["updated_timestamp"] = (
             pd.to_datetime(df["updated_timestamp"], utc=True)
             .dt.tz_convert("Asia/Bangkok")
-            .dt.tz_localize(None)  # ซ่อน timezone label ออก
+            .dt.tz_localize(None)
         )
         return df
     except Exception:
@@ -81,9 +80,7 @@ def save_status(doc_no: str, user_status: str, purchaser_status: str):
         "purchaser_status":  purchaser_status,
         "updated_timestamp": datetime.now(pytz.timezone("Asia/Bangkok")),
     }])
-
     try:
-        # โหลดข้อมูลเดิม ลบแถวเดิมออก แล้ว overwrite
         existing = DeltaTable(
             f"{ONELAKE_BASE}/gold_manual_contract_status",
             storage_options=opts
@@ -97,7 +94,6 @@ def save_status(doc_no: str, user_status: str, purchaser_status: str):
             storage_options=opts,
         )
     except Exception:
-        # ถ้า table ยังไม่มี → สร้างใหม่
         write_deltalake(
             f"{ONELAKE_BASE}/gold_manual_contract_status",
             new_row,
@@ -106,15 +102,19 @@ def save_status(doc_no: str, user_status: str, purchaser_status: str):
         )
 
 # ───────────────────────────────────────────
+# SESSION STATE
+# ───────────────────────────────────────────
+if "saved_data" not in st.session_state:
+    st.session_state.saved_data = None
+if st.session_state.saved_data is None:
+    st.session_state.saved_data = load_saved()
+
+# ───────────────────────────────────────────
 # UI
 # ───────────────────────────────────────────
 st.set_page_config(page_title="Contract Status", page_icon="📋", layout="wide")
 st.title("📋 Contract Status Management")
 st.caption("กรอก User Status และ Purchaser Status สำหรับแต่ละ Purchasing Doc")
-if "saved_data" not in st.session_state:
-    st.session_state.saved_data = None
-if st.session_state.saved_data is None:
-    st.session_state.saved_data = load_saved()
 
 col_form, col_table = st.columns([1, 2], gap="large")
 
@@ -145,28 +145,26 @@ with col_form:
     )
 
     if st.button("💾 Save", type="primary", use_container_width=True):
-    with st.spinner("กำลังบันทึก..."):
-        try:
-            save_status(doc_no, user_status, purchaser_status)
+        with st.spinner("กำลังบันทึก..."):
+            try:
+                save_status(doc_no, user_status, purchaser_status)
 
-            # ลบบรรทัดนี้ออก: load_saved.clear()
-            
-            # เพิ่มบรรทัดเหล่านี้แทน
-            new_entry = pd.DataFrame([{
-                "purchasing_doc_no": doc_no,
-                "user_status":       user_status,
-                "purchaser_status":  purchaser_status,
-                "updated_timestamp": datetime.now(pytz.timezone("Asia/Bangkok")).replace(tzinfo=None),
-            }])
-            df = st.session_state.saved_data
-            df = df[df["purchasing_doc_no"] != doc_no]
-            df = pd.concat([new_entry, df], ignore_index=True)
-            st.session_state.saved_data = df
+                # อัปเดตตารางทันที ไม่ต้องโหลดจาก Fabric ใหม่
+                new_entry = pd.DataFrame([{
+                    "purchasing_doc_no": doc_no,
+                    "user_status":       user_status,
+                    "purchaser_status":  purchaser_status,
+                    "updated_timestamp": datetime.now(pytz.timezone("Asia/Bangkok")).replace(tzinfo=None),
+                }])
+                df = st.session_state.saved_data
+                df = df[df["purchasing_doc_no"] != doc_no]
+                df = pd.concat([new_entry, df], ignore_index=True)
+                st.session_state.saved_data = df
 
-            st.toast(f"✅ Saved: {doc_no}", icon="✅")
-            st.rerun()
-        except Exception as e:
-            st.error(f"❌ เกิดข้อผิดพลาด: {e}")
+                st.toast(f"✅ Saved: {doc_no}", icon="✅")
+                st.rerun()
+            except Exception as e:
+                st.error(f"❌ เกิดข้อผิดพลาด: {e}")
 
 # ── RIGHT: Table ─────────────────────────────
 with col_table:
@@ -191,6 +189,6 @@ with col_table:
         st.caption(f"ทั้งหมด {len(df_saved)} รายการ")
 
     if st.button("🔄 Refresh", use_container_width=True):
-    load_all_docs.clear()
-    st.session_state.saved_data = None
-    st.rerun()
+        load_all_docs.clear()
+        st.session_state.saved_data = None
+        st.rerun()
