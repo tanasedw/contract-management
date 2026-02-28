@@ -111,6 +111,10 @@ def save_status(doc_no: str, user_status: str, purchaser_status: str):
 st.set_page_config(page_title="Contract Status", page_icon="📋", layout="wide")
 st.title("📋 Contract Status Management")
 st.caption("กรอก User Status และ Purchaser Status สำหรับแต่ละ Purchasing Doc")
+if "saved_data" not in st.session_state:
+    st.session_state.saved_data = None
+if st.session_state.saved_data is None:
+    st.session_state.saved_data = load_saved()
 
 col_form, col_table = st.columns([1, 2], gap="large")
 
@@ -141,20 +145,34 @@ with col_form:
     )
 
     if st.button("💾 Save", type="primary", use_container_width=True):
-        with st.spinner("กำลังบันทึก..."):
-            try:
-                save_status(doc_no, user_status, purchaser_status)
-                load_saved.clear()
-                st.toast(f"✅ Saved: {doc_no}", icon="✅")
-                st.rerun()
-            except Exception as e:
-                st.error(f"❌ เกิดข้อผิดพลาด: {e}")
+    with st.spinner("กำลังบันทึก..."):
+        try:
+            save_status(doc_no, user_status, purchaser_status)
+
+            # ลบบรรทัดนี้ออก: load_saved.clear()
+            
+            # เพิ่มบรรทัดเหล่านี้แทน
+            new_entry = pd.DataFrame([{
+                "purchasing_doc_no": doc_no,
+                "user_status":       user_status,
+                "purchaser_status":  purchaser_status,
+                "updated_timestamp": datetime.now(pytz.timezone("Asia/Bangkok")).replace(tzinfo=None),
+            }])
+            df = st.session_state.saved_data
+            df = df[df["purchasing_doc_no"] != doc_no]
+            df = pd.concat([new_entry, df], ignore_index=True)
+            st.session_state.saved_data = df
+
+            st.toast(f"✅ Saved: {doc_no}", icon="✅")
+            st.rerun()
+        except Exception as e:
+            st.error(f"❌ เกิดข้อผิดพลาด: {e}")
 
 # ── RIGHT: Table ─────────────────────────────
 with col_table:
     st.subheader("📊 รายการที่บันทึกแล้ว")
 
-    df_saved = load_saved()
+    df_saved = st.session_state.saved_data
 
     if df_saved.empty:
         st.warning("ยังไม่มีข้อมูล")
@@ -173,6 +191,6 @@ with col_table:
         st.caption(f"ทั้งหมด {len(df_saved)} รายการ")
 
     if st.button("🔄 Refresh", use_container_width=True):
-        load_all_docs.clear()
-        load_saved.clear()
-        st.rerun()
+    load_all_docs.clear()
+    st.session_state.saved_data = None
+    st.rerun()
