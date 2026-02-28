@@ -20,87 +20,109 @@ ONELAKE_BASE = (
 )
 
 # ───────────────────────────────────────────
-# STYLE
+# STYLE — Warm Beige / Cream Minimal
 # ───────────────────────────────────────────
 def apply_style():
     st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
 
-    /* ── Global ── */
     html, body, [class*="css"] {
         font-family: 'DM Sans', sans-serif;
     }
+
+    /* Background */
     .stApp {
-        background-color: #0b1628;
-        color: #e2e8f0;
+        background-color: #f5f0eb;
+        color: #3a2e28;
     }
 
-    /* ── Hide default header/footer ── */
+    /* Hide default UI */
     #MainMenu, footer, header { visibility: hidden; }
 
-    /* ── Title ── */
+    /* Title */
     h1 {
         font-family: 'DM Sans', sans-serif !important;
         font-weight: 600 !important;
-        font-size: 1.6rem !important;
-        color: #f0f6ff !important;
+        font-size: 1.5rem !important;
+        color: #3a2e28 !important;
         letter-spacing: -0.02em !important;
-        padding-bottom: 0.25rem !important;
-        border-bottom: 1px solid #1e3a5f !important;
+        padding-bottom: 0.5rem !important;
+        border-bottom: 1px solid #d0c8b6 !important;
         margin-bottom: 0.25rem !important;
     }
 
-    /* ── Caption ── */
-    .stApp p[data-testid="stCaptionContainer"] {
-        color: #4a6fa5 !important;
+    /* Caption */
+    .element-container p small {
+        color: #a09080 !important;
         font-size: 0.78rem !important;
     }
 
-    /* ── Subheader ── */
+    /* Subheader */
     h3 {
         font-family: 'DM Sans', sans-serif !important;
         font-weight: 500 !important;
-        font-size: 0.85rem !important;
-        color: #4a6fa5 !important;
+        font-size: 0.75rem !important;
+        color: #a09080 !important;
         text-transform: uppercase !important;
-        letter-spacing: 0.1em !important;
-        margin-bottom: 1rem !important;
+        letter-spacing: 0.12em !important;
+        margin-bottom: 1.2rem !important;
     }
 
-    /* ── Label ── */
-    label, .stRadio label, .stSelectbox label {
-        color: #94a3b8 !important;
-        font-size: 0.78rem !important;
+    /* Label */
+    label {
+        color: #7a6a5a !important;
+        font-size: 0.75rem !important;
         font-weight: 500 !important;
         text-transform: uppercase !important;
-        letter-spacing: 0.06em !important;
+        letter-spacing: 0.08em !important;
     }
 
-    /* ── Selectbox ── */
+    /* Selectbox */
     .stSelectbox > div > div {
-        background-color: #0f2040 !important;
-        border: 1px solid #1e3a5f !important;
+        background-color: #ede7df !important;
+        border: 1px solid #d0c8b6 !important;
         border-radius: 8px !important;
-        color: #e2e8f0 !important;
+        color: #3a2e28 !important;
         font-family: 'DM Mono', monospace !important;
         font-size: 0.88rem !important;
     }
+    .stSelectbox > div > div:hover {
+        border-color: #c4a882 !important;
+    }
     .stSelectbox > div > div:focus-within {
-        border-color: #3b82f6 !important;
-        box-shadow: 0 0 0 2px rgba(59,130,246,0.15) !important;
+        border-color: #c4a882 !important;
+        box-shadow: 0 0 0 2px rgba(196,168,130,0.2) !important;
+    }
+    /* dropdown list items */
+    .stSelectbox [data-baseweb="select"] input {
+        color: #3a2e28 !important;
+    }
+    [data-baseweb="popover"] {
+        background-color: #ede7df !important;
+    }
+    [data-baseweb="menu"] {
+        background-color: #ede7df !important;
+    }
+    [data-baseweb="menu"] li {
+        color: #3a2e28 !important;
+        font-family: 'DM Mono', monospace !important;
+        font-size: 0.85rem !important;
+    }
+    [data-baseweb="menu"] li:hover {
+        background-color: #e2d3cd !important;
     }
 
-    /* ── Radio ── */
+    /* Radio */
     .stRadio > div {
         gap: 0.5rem !important;
     }
     .stRadio > div > label {
-        background-color: #0f2040 !important;
-        border: 1px solid #1e3a5f !important;
+        background-color: #ede7df !important;
+        border: 1px solid #d0c8b6 !important;
         border-radius: 8px !important;
         padding: 0.4rem 1rem !important;
-        color: #94a3b8 !important;
+        color: #7a6a5a !important;
         font-size: 0.82rem !important;
         text-transform: none !important;
         letter-spacing: 0 !important;
@@ -108,94 +130,73 @@ def apply_style():
         transition: all 0.15s !important;
     }
     .stRadio > div > label:has(input:checked) {
-        background-color: #1e3a5f !important;
-        border-color: #3b82f6 !important;
-        color: #93c5fd !important;
+        background-color: #e6cdb5 !important;
+        border-color: #c4a882 !important;
+        color: #3a2e28 !important;
+        font-weight: 500 !important;
     }
 
-    /* ── Button Save ── */
+    /* Button Save */
     .stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, #1d4ed8, #1e40af) !important;
-        color: #ffffff !important;
+        background: linear-gradient(135deg, #c4a882, #b8956e) !important;
+        color: #fff8f0 !important;
         border: none !important;
         border-radius: 8px !important;
         font-family: 'DM Sans', sans-serif !important;
         font-weight: 500 !important;
         font-size: 0.88rem !important;
-        letter-spacing: 0.02em !important;
+        letter-spacing: 0.03em !important;
         padding: 0.5rem 1rem !important;
         transition: all 0.2s !important;
-        box-shadow: 0 4px 12px rgba(29,78,216,0.3) !important;
+        box-shadow: 0 4px 12px rgba(180,140,100,0.25) !important;
     }
     .stButton > button[kind="primary"]:hover {
-        background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
-        box-shadow: 0 6px 16px rgba(29,78,216,0.4) !important;
+        background: linear-gradient(135deg, #d4b892, #c4a882) !important;
+        box-shadow: 0 6px 16px rgba(180,140,100,0.35) !important;
         transform: translateY(-1px) !important;
     }
 
-    /* ── Button Refresh ── */
+    /* Button Refresh */
     .stButton > button[kind="secondary"] {
         background-color: transparent !important;
-        color: #4a6fa5 !important;
-        border: 1px solid #1e3a5f !important;
+        color: #a09080 !important;
+        border: 1px solid #d0c8b6 !important;
         border-radius: 8px !important;
         font-size: 0.82rem !important;
         transition: all 0.15s !important;
     }
     .stButton > button[kind="secondary"]:hover {
-        border-color: #3b82f6 !important;
-        color: #93c5fd !important;
+        border-color: #c4a882 !important;
+        color: #3a2e28 !important;
     }
 
-    /* ── Dataframe ── */
+    /* Dataframe */
     .stDataFrame {
-        border: 1px solid #1e3a5f !important;
+        border: 1px solid #d0c8b6 !important;
         border-radius: 10px !important;
         overflow: hidden !important;
     }
-    .stDataFrame thead tr th {
-        background-color: #0f2040 !important;
-        color: #4a6fa5 !important;
-        font-size: 0.72rem !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.08em !important;
-        font-weight: 500 !important;
-        border-bottom: 1px solid #1e3a5f !important;
-    }
-    .stDataFrame tbody tr td {
-        background-color: #0b1628 !important;
-        color: #cbd5e1 !important;
-        font-family: 'DM Mono', monospace !important;
-        font-size: 0.82rem !important;
-        border-bottom: 1px solid #0f2040 !important;
-    }
-    .stDataFrame tbody tr:hover td {
-        background-color: #0f2040 !important;
+    iframe[data-testid="stDataFrameResizable"] {
+        background-color: #f5f0eb !important;
     }
 
-    /* ── Spinner ── */
-    .stSpinner > div {
-        border-top-color: #3b82f6 !important;
-    }
-
-    /* ── Warning / Info ── */
+    /* Warning */
     .stAlert {
-        background-color: #0f2040 !important;
-        border: 1px solid #1e3a5f !important;
+        background-color: #ede7df !important;
+        border: 1px solid #d0c8b6 !important;
         border-radius: 8px !important;
-        color: #94a3b8 !important;
+        color: #7a6a5a !important;
     }
 
-    /* ── Divider ── */
-    hr {
-        border-color: #1e3a5f !important;
+    /* Spinner */
+    .stSpinner > div {
+        border-top-color: #c4a882 !important;
     }
 
-    /* ── Caption bottom ── */
-    small {
-        color: #334e6b !important;
-        font-size: 0.72rem !important;
-    }
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #f5f0eb; }
+    ::-webkit-scrollbar-thumb { background: #d0c8b6; border-radius: 10px; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -302,7 +303,6 @@ st.markdown("<br>", unsafe_allow_html=True)
 
 col_form, col_gap, col_table = st.columns([1, 0.08, 2])
 
-# ── LEFT: Form ──────────────────────────────
 with col_form:
     st.subheader("เพิ่ม / แก้ไข Status")
 
@@ -353,7 +353,6 @@ with col_form:
             except Exception as e:
                 st.error(f"Error: {e}")
 
-# ── RIGHT: Table ─────────────────────────────
 with col_table:
     st.subheader("รายการที่บันทึกแล้ว")
 
