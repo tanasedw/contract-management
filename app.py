@@ -43,7 +43,7 @@ def storage_options():
 # ───────────────────────────────────────────
 # DATA
 # ───────────────────────────────────────────
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=600)
 def load_all_docs():
     opts = storage_options()
     df = (
@@ -54,7 +54,7 @@ def load_all_docs():
     )
     return df
 
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=600)
 def load_saved():
     opts = storage_options()
     try:
