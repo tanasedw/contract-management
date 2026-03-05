@@ -20,200 +20,344 @@ ONELAKE_BASE = (
 )
 
 # ───────────────────────────────────────────
-# STYLE — Warm Beige / Cream Minimal
+# STYLE — Claude Dark / Modern
 # ───────────────────────────────────────────
 def apply_style():
     st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root {
+        --bg:         #0e0e10;
+        --surface:    #17171a;
+        --surface2:   #1f1f24;
+        --border:     rgba(255,255,255,0.07);
+        --border-hi:  rgba(209,149,100,0.45);
+        --accent:     #d19564;
+        --accent-dim: rgba(209,149,100,0.12);
+        --accent-glow:rgba(209,149,100,0.08);
+        --text:       #e8e2d9;
+        --text-dim:   #7a7570;
+        --text-mid:   #b0a89e;
+        --red:        #e06060;
+        --green:      #6ab890;
+        --radius:     10px;
+    }
 
     html, body, [class*="css"] {
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'Syne', sans-serif !important;
+        background-color: var(--bg) !important;
+        color: var(--text) !important;
     }
 
-    /* Background */
-    .stApp {
-        background-color: #f5f0eb;
-        color: #3a2e28;
-    }
-
-    /* Hide default UI */
+    /* ── Hide Streamlit chrome ── */
     #MainMenu, footer, header { visibility: hidden; }
+    .block-container {
+        padding: 2.5rem 2rem 4rem !important;
+        max-width: 1300px !important;
+    }
 
-    /* Title */
+    /* ── Page title ── */
     h1 {
-        font-family: 'DM Sans', sans-serif !important;
-        font-weight: 600 !important;
-        font-size: 1.5rem !important;
-        color: #3a2e28 !important;
-        letter-spacing: -0.02em !important;
-        padding-bottom: 0.5rem !important;
-        border-bottom: 1px solid #d0c8b6 !important;
-        margin-bottom: 0.25rem !important;
+        font-family: 'Syne', sans-serif !important;
+        font-weight: 700 !important;
+        font-size: 1.55rem !important;
+        color: var(--text) !important;
+        letter-spacing: -0.03em !important;
+        margin-bottom: 0.1rem !important;
+        background: linear-gradient(90deg, #e8e2d9 0%, #d19564 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
-    /* Caption */
-    .element-container p small {
-        color: #a09080 !important;
+    /* ── Caption ── */
+    .element-container p small,
+    [data-testid="stCaptionContainer"] p {
+        color: var(--text-dim) !important;
         font-size: 0.78rem !important;
+        font-family: 'JetBrains Mono', monospace !important;
     }
 
-    /* Subheader */
+    /* ── Section subheader ── */
     h3 {
-        font-family: 'DM Sans', sans-serif !important;
-        font-weight: 500 !important;
-        font-size: 0.75rem !important;
-        color: #a09080 !important;
+        font-family: 'Syne', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 0.7rem !important;
+        color: var(--text-dim) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.18em !important;
+        margin-bottom: 1.4rem !important;
+    }
+
+    /* ── Thin divider line after title ── */
+    h1 + div {
+        border-top: 1px solid var(--border);
+        margin-top: 0.4rem;
+    }
+
+    /* ── Labels ── */
+    label, .stRadio label {
+        font-family: 'Syne', sans-serif !important;
+        color: var(--text-mid) !important;
+        font-size: 0.72rem !important;
+        font-weight: 600 !important;
         text-transform: uppercase !important;
         letter-spacing: 0.12em !important;
-        margin-bottom: 1.2rem !important;
     }
 
-    /* Label */
-    label {
-        color: #7a6a5a !important;
-        font-size: 0.75rem !important;
-        font-weight: 500 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.08em !important;
-    }
-
-    /* Selectbox */
+    /* ── Selectbox ── */
     .stSelectbox > div > div {
-        background-color: #ede7df !important;
-        border: 1px solid #d0c8b6 !important;
-        border-radius: 8px !important;
-        color: #3a2e28 !important;
-        font-family: 'DM Mono', monospace !important;
-        font-size: 0.88rem !important;
+        background-color: var(--surface2) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: var(--radius) !important;
+        color: var(--text) !important;
+        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 0.87rem !important;
+        transition: border-color 0.2s, box-shadow 0.2s !important;
     }
     .stSelectbox > div > div:hover {
-        border-color: #c4a882 !important;
+        border-color: var(--border-hi) !important;
     }
     .stSelectbox > div > div:focus-within {
-        border-color: #c4a882 !important;
-        box-shadow: 0 0 0 2px rgba(196,168,130,0.2) !important;
+        border-color: var(--accent) !important;
+        box-shadow: 0 0 0 3px var(--accent-dim) !important;
     }
-    .stSelectbox [data-baseweb="select"] input {
-        color: #3a2e28 !important;
-    }
-    [data-baseweb="popover"] {
-        background-color: #ede7df !important;
-    }
+    [data-baseweb="popover"],
     [data-baseweb="menu"] {
-        background-color: #ede7df !important;
+        background-color: var(--surface2) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: var(--radius) !important;
     }
     [data-baseweb="menu"] li {
-        color: #3a2e28 !important;
-        font-family: 'DM Mono', monospace !important;
-        font-size: 0.85rem !important;
+        color: var(--text) !important;
+        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 0.84rem !important;
     }
     [data-baseweb="menu"] li:hover {
-        background-color: #e2d3cd !important;
+        background-color: var(--accent-dim) !important;
+    }
+    .stSelectbox [data-baseweb="select"] input {
+        color: var(--text) !important;
     }
 
-    /* Radio */
+    /* ── Radio buttons as pills ── */
     .stRadio > div {
         gap: 0.5rem !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
     }
     .stRadio > div > label {
-        background-color: #ede7df !important;
-        border: 1px solid #d0c8b6 !important;
-        border-radius: 8px !important;
-        padding: 0.4rem 1rem !important;
-        color: #7a6a5a !important;
-        font-size: 0.82rem !important;
+        background-color: var(--surface2) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 100px !important;
+        padding: 0.35rem 1rem !important;
+        color: var(--text-dim) !important;
+        font-size: 0.8rem !important;
         text-transform: none !important;
-        letter-spacing: 0 !important;
+        letter-spacing: 0.02em !important;
         cursor: pointer !important;
         transition: all 0.15s !important;
+        font-weight: 500 !important;
+    }
+    .stRadio > div > label:hover {
+        border-color: var(--border-hi) !important;
+        color: var(--text) !important;
     }
     .stRadio > div > label:has(input:checked) {
-        background-color: #e6cdb5 !important;
-        border-color: #c4a882 !important;
-        color: #3a2e28 !important;
-        font-weight: 500 !important;
+        background-color: var(--accent-dim) !important;
+        border-color: var(--accent) !important;
+        color: var(--accent) !important;
+        font-weight: 600 !important;
+        box-shadow: 0 0 12px var(--accent-glow) !important;
     }
+    /* hide the actual radio dot */
+    .stRadio > div > label > div:first-child { display: none !important; }
 
-    /* Textarea */
+    /* ── Textarea ── */
     .stTextArea > div > div > textarea {
-        background-color: #ede7df !important;
-        border: 1px solid #d0c8b6 !important;
-        border-radius: 8px !important;
-        color: #3a2e28 !important;
-        font-family: 'DM Sans', sans-serif !important;
-        font-size: 0.88rem !important;
+        background-color: var(--surface2) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: var(--radius) !important;
+        color: var(--text) !important;
+        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 0.84rem !important;
         resize: vertical !important;
+        transition: border-color 0.2s, box-shadow 0.2s !important;
+        line-height: 1.6 !important;
     }
     .stTextArea > div > div > textarea:focus {
-        border-color: #c4a882 !important;
-        box-shadow: 0 0 0 2px rgba(196,168,130,0.2) !important;
+        border-color: var(--accent) !important;
+        box-shadow: 0 0 0 3px var(--accent-dim) !important;
     }
     .stTextArea > div > div > textarea::placeholder {
-        color: #b0a090 !important;
+        color: var(--text-dim) !important;
     }
 
-    /* Button Save */
+    /* ── Primary button — Save ── */
     .stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, #c4a882, #b8956e) !important;
-        color: #fff8f0 !important;
+        background: linear-gradient(135deg, #d19564 0%, #c07c4a 100%) !important;
+        color: #0e0e10 !important;
         border: none !important;
-        border-radius: 8px !important;
-        font-family: 'DM Sans', sans-serif !important;
-        font-weight: 500 !important;
-        font-size: 0.88rem !important;
-        letter-spacing: 0.03em !important;
-        padding: 0.5rem 1rem !important;
+        border-radius: var(--radius) !important;
+        font-family: 'Syne', sans-serif !important;
+        font-weight: 700 !important;
+        font-size: 0.85rem !important;
+        letter-spacing: 0.05em !important;
+        padding: 0.55rem 1.2rem !important;
         transition: all 0.2s !important;
-        box-shadow: 0 4px 12px rgba(180,140,100,0.25) !important;
+        box-shadow: 0 4px 20px rgba(209,149,100,0.3) !important;
     }
     .stButton > button[kind="primary"]:hover {
-        background: linear-gradient(135deg, #d4b892, #c4a882) !important;
-        box-shadow: 0 6px 16px rgba(180,140,100,0.35) !important;
+        background: linear-gradient(135deg, #e0a875 0%, #d19564 100%) !important;
+        box-shadow: 0 6px 28px rgba(209,149,100,0.45) !important;
         transform: translateY(-1px) !important;
     }
+    .stButton > button[kind="primary"]:active {
+        transform: translateY(0) !important;
+        box-shadow: 0 2px 10px rgba(209,149,100,0.25) !important;
+    }
 
-    /* Button Refresh */
+    /* ── Secondary button — Refresh ── */
     .stButton > button[kind="secondary"] {
-        background-color: transparent !important;
-        color: #a09080 !important;
-        border: 1px solid #d0c8b6 !important;
-        border-radius: 8px !important;
+        background-color: var(--surface2) !important;
+        color: var(--text-dim) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: var(--radius) !important;
+        font-family: 'Syne', sans-serif !important;
         font-size: 0.82rem !important;
-        transition: all 0.15s !important;
+        font-weight: 500 !important;
+        letter-spacing: 0.03em !important;
+        transition: all 0.2s !important;
     }
     .stButton > button[kind="secondary"]:hover {
-        border-color: #c4a882 !important;
-        color: #3a2e28 !important;
+        border-color: var(--border-hi) !important;
+        color: var(--text) !important;
+        background-color: var(--accent-dim) !important;
     }
 
-    /* Dataframe */
+    /* ── Dataframe / table ── */
     .stDataFrame {
-        border: 1px solid #d0c8b6 !important;
-        border-radius: 10px !important;
+        border: 1px solid var(--border) !important;
+        border-radius: var(--radius) !important;
         overflow: hidden !important;
+        background-color: var(--surface) !important;
     }
-    iframe[data-testid="stDataFrameResizable"] {
-        background-color: #f5f0eb !important;
+    [data-testid="stDataFrameResizable"] {
+        background-color: var(--surface) !important;
+    }
+    /* Dataframe header row */
+    [data-testid="stDataFrame"] th {
+        background-color: var(--surface2) !important;
+        color: var(--text-dim) !important;
+        font-family: 'Syne', sans-serif !important;
+        font-size: 0.7rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.1em !important;
+    }
+    [data-testid="stDataFrame"] td {
+        color: var(--text) !important;
+        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 0.82rem !important;
     }
 
-    /* Warning */
+    /* ── Alert / warning ── */
     .stAlert {
-        background-color: #ede7df !important;
-        border: 1px solid #d0c8b6 !important;
-        border-radius: 8px !important;
-        color: #7a6a5a !important;
+        background-color: var(--surface2) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: var(--radius) !important;
+        color: var(--text-mid) !important;
     }
 
-    /* Spinner */
+    /* ── Spinner ── */
     .stSpinner > div {
-        border-top-color: #c4a882 !important;
+        border-top-color: var(--accent) !important;
     }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: #f5f0eb; }
-    ::-webkit-scrollbar-thumb { background: #d0c8b6; border-radius: 10px; }
+    /* ── Toast ── */
+    [data-testid="stToast"] {
+        background-color: var(--surface2) !important;
+        border: 1px solid var(--border-hi) !important;
+        color: var(--text) !important;
+        border-radius: var(--radius) !important;
+    }
+
+    /* ── Subtle card wrapper around form column ── */
+    [data-testid="column"]:first-child > div > div {
+        background-color: var(--surface) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 14px !important;
+        padding: 1.5rem !important;
+    }
+
+    /* ── Vertical divider column ── */
+    [data-testid="column"]:nth-child(2) {
+        border-left: 1px solid var(--border) !important;
+        margin: 0 0.5rem !important;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb {
+        background: var(--surface2);
+        border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--text-dim);
+    }
+
+    /* ── Glow dot decoration on title ── */
+    .title-dot {
+        display: inline-block;
+        width: 8px; height: 8px;
+        background: var(--accent);
+        border-radius: 50%;
+        box-shadow: 0 0 12px var(--accent);
+        margin-right: 0.6rem;
+        vertical-align: middle;
+    }
+
+    /* ── Status badge chips in table ── */
+    .badge-confirmed {
+        display: inline-block;
+        background: rgba(106,184,144,0.15);
+        color: #6ab890;
+        border: 1px solid rgba(106,184,144,0.3);
+        border-radius: 100px;
+        padding: 0.1rem 0.6rem;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+    }
+    .badge-empty {
+        color: var(--text-dim);
+        font-size: 0.72rem;
+    }
+
+    /* ── Count badge ── */
+    .count-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: var(--accent-dim);
+        border: 1px solid var(--border-hi);
+        border-radius: 100px;
+        padding: 0.2rem 0.75rem;
+        color: var(--accent);
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ── Section header row ── */
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.2rem;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -266,7 +410,6 @@ def load_saved():
             .dt.tz_convert("Asia/Bangkok")
             .dt.tz_localize(None)
         )
-        # backward-compat: fill comment if column missing
         if "comment" not in df.columns:
             df["comment"] = ""
         return df
@@ -322,15 +465,17 @@ if st.session_state.saved_data is None:
 st.set_page_config(page_title="Contract Status", page_icon="📋", layout="wide")
 apply_style()
 
-st.title("Contract Status Management")
+# ── Header ──
+st.markdown('<span class="title-dot"></span>', unsafe_allow_html=True)
+st.title("Contract Status")
 st.caption("กรอก User Status และ Purchaser Status สำหรับแต่ละ Purchasing Doc")
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-col_form, col_gap, col_table = st.columns([1, 0.08, 2])
+col_form, col_gap, col_table = st.columns([1, 0.05, 2.2])
 
 with col_form:
-    st.subheader("เพิ่ม / แก้ไข Status")
+    st.subheader("เพิ่ม / แก้ไข")
 
     df_docs = load_all_docs()
 
@@ -340,27 +485,27 @@ with col_form:
         placeholder="ค้นหา Doc No...",
     )
 
-    st.markdown("<div style='height:0.5rem'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:0.8rem'></div>", unsafe_allow_html=True)
 
     user_status = st.radio(
         "User Status",
         ["confirmed", ""],
-        format_func=lambda x: "✅  confirmed" if x == "confirmed" else "⬜  (ว่าง)",
+        format_func=lambda x: "✓  confirmed" if x == "confirmed" else "○  ว่าง",
         horizontal=True,
     )
 
-    st.markdown("<div style='height:0.5rem'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:0.8rem'></div>", unsafe_allow_html=True)
 
     purchaser_status = st.radio(
         "Purchaser Status",
         ["confirmed", ""],
-        format_func=lambda x: "✅  confirmed" if x == "confirmed" else "⬜  (ว่าง)",
+        format_func=lambda x: "✓  confirmed" if x == "confirmed" else "○  ว่าง",
         horizontal=True,
     )
 
-    st.markdown("<div style='height:0.5rem'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:0.8rem'></div>", unsafe_allow_html=True)
 
-    # ── pre-fill comment if doc already has one ──
+    # ── pre-fill comment ──
     existing_comment = ""
     if doc_no and not st.session_state.saved_data.empty:
         match = st.session_state.saved_data[
@@ -373,10 +518,10 @@ with col_form:
         "Comment",
         value=existing_comment,
         placeholder="หมายเหตุ / รายละเอียดเพิ่มเติม...",
-        height=100,
+        height=110,
     )
 
-    st.markdown("<div style='height:1rem'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:1.2rem'></div>", unsafe_allow_html=True)
 
     if st.button("Save", type="primary", use_container_width=True):
         with st.spinner("กำลังบันทึก..."):
@@ -399,9 +544,22 @@ with col_form:
                 st.error(f"Error: {e}")
 
 with col_table:
-    st.subheader("รายการที่บันทึกแล้ว")
-
     df_saved = st.session_state.saved_data
+    count = len(df_saved)
+
+    # ── section header with count badge ──
+    st.markdown(
+        f"""
+        <div class="section-header">
+            <span style="font-size:0.7rem;font-weight:600;color:#7a7570;
+                         text-transform:uppercase;letter-spacing:0.18em;">
+                รายการที่บันทึกแล้ว
+            </span>
+            <span class="count-badge">{count} รายการ</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     if df_saved.empty:
         st.warning("ยังไม่มีข้อมูล")
@@ -412,21 +570,22 @@ with col_table:
             hide_index=True,
             column_config={
                 "purchasing_doc_no": st.column_config.TextColumn("Doc No"),
-                "user_status":       st.column_config.TextColumn("User Status"),
-                "purchaser_status":  st.column_config.TextColumn("Purchaser Status"),
+                "user_status":       st.column_config.TextColumn("User"),
+                "purchaser_status":  st.column_config.TextColumn("Purchaser"),
                 "comment":           st.column_config.TextColumn("Comment", width="medium"),
-                "updated_timestamp": st.column_config.DatetimeColumn("Updated At", format="YYYY-MM-DD HH:mm:ss"),
+                "updated_timestamp": st.column_config.DatetimeColumn(
+                    "Updated At", format="YYYY-MM-DD HH:mm"
+                ),
             },
             column_order=[
                 "purchasing_doc_no", "user_status", "purchaser_status",
                 "comment", "updated_timestamp",
             ],
         )
-        st.caption(f"{len(df_saved)} รายการ")
 
-    st.markdown("<div style='height:0.5rem'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:0.75rem'></div>", unsafe_allow_html=True)
 
-    if st.button("↺  Refresh", use_container_width=True):
+    if st.button("↺  Refresh data", use_container_width=True):
         load_all_docs.clear()
         load_saved.clear()
         st.session_state.saved_data = None
