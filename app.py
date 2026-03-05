@@ -406,8 +406,7 @@ def load_saved():
             .sort_values("updated_timestamp", ascending=False)
         )
         df["updated_timestamp"] = (
-            pd.to_datetime(df["updated_timestamp"], utc=True)
-            .dt.tz_convert("Asia/Bangkok")
+            pd.to_datetime(df["updated_timestamp"])
             .dt.tz_localize(None)
         )
         if "comment" not in df.columns:
