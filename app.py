@@ -405,9 +405,8 @@ def load_saved():
             .to_pandas()
             .sort_values("updated_timestamp", ascending=False)
         )
-        df["updated_timestamp"] = (
-            pd.to_datetime(df["updated_timestamp"])
-            .dt.tz_localize(None)
+        df["updated_timestamp"] = pd.to_datetime(
+            df["updated_timestamp"].astype(str).str[:19]
         )
         if "comment" not in df.columns:
             df["comment"] = ""
