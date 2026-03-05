@@ -574,7 +574,7 @@ with col_table:
                 "purchaser_status":  st.column_config.TextColumn("Purchaser"),
                 "comment":           st.column_config.TextColumn("Comment", width="medium"),
                 "updated_timestamp": st.column_config.DatetimeColumn(
-                    "Updated At (BKK)", format="DD/MM/YYYY HH:mm:ss"
+                    "Updated At (BKK)", format="DD MMM YYYY hh:mm A"
                 ),
             },
             column_order=[
