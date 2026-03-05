@@ -94,7 +94,6 @@ def apply_style():
         border-color: #c4a882 !important;
         box-shadow: 0 0 0 2px rgba(196,168,130,0.2) !important;
     }
-    /* dropdown list items */
     .stSelectbox [data-baseweb="select"] input {
         color: #3a2e28 !important;
     }
@@ -134,6 +133,24 @@ def apply_style():
         border-color: #c4a882 !important;
         color: #3a2e28 !important;
         font-weight: 500 !important;
+    }
+
+    /* Textarea */
+    .stTextArea > div > div > textarea {
+        background-color: #ede7df !important;
+        border: 1px solid #d0c8b6 !important;
+        border-radius: 8px !important;
+        color: #3a2e28 !important;
+        font-family: 'DM Sans', sans-serif !important;
+        font-size: 0.88rem !important;
+        resize: vertical !important;
+    }
+    .stTextArea > div > div > textarea:focus {
+        border-color: #c4a882 !important;
+        box-shadow: 0 0 0 2px rgba(196,168,130,0.2) !important;
+    }
+    .stTextArea > div > div > textarea::placeholder {
+        color: #b0a090 !important;
     }
 
     /* Button Save */
@@ -249,16 +266,23 @@ def load_saved():
             .dt.tz_convert("Asia/Bangkok")
             .dt.tz_localize(None)
         )
+        # backward-compat: fill comment if column missing
+        if "comment" not in df.columns:
+            df["comment"] = ""
         return df
     except Exception:
-        return pd.DataFrame(columns=["purchasing_doc_no", "user_status", "purchaser_status", "updated_timestamp"])
+        return pd.DataFrame(columns=[
+            "purchasing_doc_no", "user_status", "purchaser_status",
+            "comment", "updated_timestamp",
+        ])
 
-def save_status(doc_no: str, user_status: str, purchaser_status: str):
+def save_status(doc_no: str, user_status: str, purchaser_status: str, comment: str):
     opts = storage_options()
     new_row = pd.DataFrame([{
         "purchasing_doc_no": doc_no,
         "user_status":       user_status,
         "purchaser_status":  purchaser_status,
+        "comment":           comment,
         "updated_timestamp": datetime.now(pytz.timezone("Asia/Bangkok")),
     }])
     try:
@@ -266,6 +290,8 @@ def save_status(doc_no: str, user_status: str, purchaser_status: str):
             f"{ONELAKE_BASE}/gold_manual_contract_status",
             storage_options=opts
         ).to_pandas()
+        if "comment" not in existing.columns:
+            existing["comment"] = ""
         existing = existing[existing["purchasing_doc_no"] != doc_no]
         merged = pd.concat([existing, new_row], ignore_index=True)
         write_deltalake(
@@ -332,16 +358,35 @@ with col_form:
         horizontal=True,
     )
 
+    st.markdown("<div style='height:0.5rem'></div>", unsafe_allow_html=True)
+
+    # ── pre-fill comment if doc already has one ──
+    existing_comment = ""
+    if doc_no and not st.session_state.saved_data.empty:
+        match = st.session_state.saved_data[
+            st.session_state.saved_data["purchasing_doc_no"] == doc_no
+        ]
+        if not match.empty:
+            existing_comment = str(match.iloc[0].get("comment", "") or "")
+
+    comment = st.text_area(
+        "Comment",
+        value=existing_comment,
+        placeholder="หมายเหตุ / รายละเอียดเพิ่มเติม...",
+        height=100,
+    )
+
     st.markdown("<div style='height:1rem'></div>", unsafe_allow_html=True)
 
     if st.button("Save", type="primary", use_container_width=True):
         with st.spinner("กำลังบันทึก..."):
             try:
-                save_status(doc_no, user_status, purchaser_status)
+                save_status(doc_no, user_status, purchaser_status, comment)
                 new_entry = pd.DataFrame([{
                     "purchasing_doc_no": doc_no,
                     "user_status":       user_status,
                     "purchaser_status":  purchaser_status,
+                    "comment":           comment,
                     "updated_timestamp": datetime.now(pytz.timezone("Asia/Bangkok")).replace(tzinfo=None),
                 }])
                 df = st.session_state.saved_data
@@ -366,11 +411,16 @@ with col_table:
             use_container_width=True,
             hide_index=True,
             column_config={
-                "purchasing_doc_no":  st.column_config.TextColumn("Doc No"),
-                "user_status":        st.column_config.TextColumn("User Status"),
-                "purchaser_status":   st.column_config.TextColumn("Purchaser Status"),
-                "updated_timestamp":  st.column_config.DatetimeColumn("Updated At", format="YYYY-MM-DD HH:mm:ss"),
+                "purchasing_doc_no": st.column_config.TextColumn("Doc No"),
+                "user_status":       st.column_config.TextColumn("User Status"),
+                "purchaser_status":  st.column_config.TextColumn("Purchaser Status"),
+                "comment":           st.column_config.TextColumn("Comment", width="medium"),
+                "updated_timestamp": st.column_config.DatetimeColumn("Updated At", format="YYYY-MM-DD HH:mm:ss"),
             },
+            column_order=[
+                "purchasing_doc_no", "user_status", "purchaser_status",
+                "comment", "updated_timestamp",
+            ],
         )
         st.caption(f"{len(df_saved)} รายการ")
 
@@ -378,5 +428,6 @@ with col_table:
 
     if st.button("↺  Refresh", use_container_width=True):
         load_all_docs.clear()
+        load_saved.clear()
         st.session_state.saved_data = None
         st.rerun()
