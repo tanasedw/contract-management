@@ -174,6 +174,24 @@ def apply_style():
     /* hide the actual radio dot */
     .stRadio > div > label > div:first-child { display: none !important; }
 
+    /* ── Text input ── */
+    .stTextInput > div > div > input {
+        background-color: var(--surface2) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: var(--radius) !important;
+        color: var(--text) !important;
+        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 0.87rem !important;
+        transition: border-color 0.2s, box-shadow 0.2s !important;
+    }
+    .stTextInput > div > div > input:focus {
+        border-color: var(--accent) !important;
+        box-shadow: 0 0 0 3px var(--accent-dim) !important;
+    }
+    .stTextInput > div > div > input::placeholder {
+        color: var(--text-dim) !important;
+    }
+
     /* ── Textarea ── */
     .stTextArea > div > div > textarea {
         background-color: var(--surface2) !important;
@@ -246,7 +264,6 @@ def apply_style():
     [data-testid="stDataFrameResizable"] {
         background-color: var(--surface) !important;
     }
-    /* Dataframe header row */
     [data-testid="stDataFrame"] th {
         background-color: var(--surface2) !important;
         color: var(--text-dim) !important;
@@ -318,23 +335,6 @@ def apply_style():
         vertical-align: middle;
     }
 
-    /* ── Status badge chips in table ── */
-    .badge-confirmed {
-        display: inline-block;
-        background: rgba(106,184,144,0.15);
-        color: #6ab890;
-        border: 1px solid rgba(106,184,144,0.3);
-        border-radius: 100px;
-        padding: 0.1rem 0.6rem;
-        font-size: 0.72rem;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-    }
-    .badge-empty {
-        color: var(--text-dim);
-        font-size: 0.72rem;
-    }
-
     /* ── Count badge ── */
     .count-badge {
         display: inline-flex;
@@ -387,11 +387,12 @@ def storage_options():
 # ───────────────────────────────────────────
 @st.cache_data(ttl=600)
 def load_all_docs():
+    """Load purchasing_doc_no + contract_name from gold_contract_management."""
     opts = storage_options()
     df = (
         DeltaTable(f"{ONELAKE_BASE}/gold_contract_management", storage_options=opts)
-        .to_pandas()[["purchasing_doc_no"]]
-        .drop_duplicates()
+        .to_pandas()[["purchasing_doc_no", "contract_name"]]
+        .drop_duplicates(subset=["purchasing_doc_no"])
         .sort_values("purchasing_doc_no")
     )
     return df
@@ -408,31 +409,41 @@ def load_saved():
         df["updated_timestamp"] = pd.to_datetime(
             df["updated_timestamp"].astype(str).str[:19]
         )
-        if "comment" not in df.columns:
-            df["comment"] = ""
+        for col in ["comment", "new_contract_doc_no"]:
+            if col not in df.columns:
+                df[col] = ""
+        # drop legacy user_status if present
+        df = df.drop(columns=["user_status"], errors="ignore")
         return df
     except Exception:
         return pd.DataFrame(columns=[
-            "purchasing_doc_no", "user_status", "purchaser_status",
-            "comment", "updated_timestamp",
+            "purchasing_doc_no", "purchaser_status",
+            "comment", "new_contract_doc_no", "updated_timestamp",
         ])
 
-def save_status(doc_no: str, user_status: str, purchaser_status: str, comment: str):
+def save_status(
+    doc_no: str,
+    purchaser_status: str,
+    comment: str,
+    new_contract_doc_no: str,
+):
     opts = storage_options()
     new_row = pd.DataFrame([{
-        "purchasing_doc_no": doc_no,
-        "user_status":       user_status,
-        "purchaser_status":  purchaser_status,
-        "comment":           comment,
-        "updated_timestamp": datetime.now(pytz.timezone("Asia/Bangkok")),
+        "purchasing_doc_no":    doc_no,
+        "purchaser_status":     purchaser_status,
+        "comment":              comment,
+        "new_contract_doc_no":  new_contract_doc_no,
+        "updated_timestamp":    datetime.now(pytz.timezone("Asia/Bangkok")),
     }])
     try:
         existing = DeltaTable(
             f"{ONELAKE_BASE}/gold_manual_contract_status",
             storage_options=opts
         ).to_pandas()
-        if "comment" not in existing.columns:
-            existing["comment"] = ""
+        existing = existing.drop(columns=["user_status"], errors="ignore")
+        for col in ["comment", "new_contract_doc_no"]:
+            if col not in existing.columns:
+                existing[col] = ""
         existing = existing[existing["purchasing_doc_no"] != doc_no]
         merged = pd.concat([existing, new_row], ignore_index=True)
         write_deltalake(
@@ -466,7 +477,7 @@ apply_style()
 # ── Header ──
 st.markdown('<span class="title-dot"></span>', unsafe_allow_html=True)
 st.title("Contract Status")
-st.caption("กรอก User Status และ Purchaser Status สำหรับแต่ละ Purchasing Doc")
+st.caption("กรอก Purchaser Status สำหรับแต่ละ Purchasing Doc")
 
 st.markdown("<br>", unsafe_allow_html=True)
 
@@ -485,19 +496,12 @@ with col_form:
 
     st.markdown("<div style='height:0.8rem'></div>", unsafe_allow_html=True)
 
-    user_status = st.radio(
-        "User Status",
-        ["confirmed", ""],
-        format_func=lambda x: "✓  confirmed" if x == "confirmed" else "○  ว่าง",
-        horizontal=True,
-    )
-
-    st.markdown("<div style='height:0.8rem'></div>", unsafe_allow_html=True)
+    PURCHASER_OPTIONS = ["ต่อสัญญา", "ไม่ต่อสัญญา", "ยกเลิกสัญญาก่อนกำหนด", ""]
 
     purchaser_status = st.radio(
         "Purchaser Status",
-        ["confirmed", ""],
-        format_func=lambda x: "✓  confirmed" if x == "confirmed" else "○  ว่าง",
+        PURCHASER_OPTIONS,
+        format_func=lambda x: x if x != "" else "○  ว่าง",
         horizontal=True,
     )
 
@@ -505,12 +509,14 @@ with col_form:
 
     # ── pre-fill comment ──
     existing_comment = ""
+    existing_new_doc = ""
     if doc_no and not st.session_state.saved_data.empty:
         match = st.session_state.saved_data[
             st.session_state.saved_data["purchasing_doc_no"] == doc_no
         ]
         if not match.empty:
             existing_comment = str(match.iloc[0].get("comment", "") or "")
+            existing_new_doc = str(match.iloc[0].get("new_contract_doc_no", "") or "")
 
     comment = st.text_area(
         "Comment",
@@ -519,18 +525,35 @@ with col_form:
         height=110,
     )
 
+    st.markdown("<div style='height:0.8rem'></div>", unsafe_allow_html=True)
+
+    # ── new contract doc no ──
+    new_contract_doc_no_raw = st.text_input(
+        "เลขสัญญาใหม่ (Purchasing Doc No ใหม่)",
+        value=existing_new_doc,
+        placeholder="ตัวเลขเท่านั้น เช่น 4500012345",
+        max_chars=20,
+    )
+
+    # strip non-digit characters
+    new_contract_doc_no = "".join(filter(str.isdigit, new_contract_doc_no_raw))
+    if new_contract_doc_no_raw and new_contract_doc_no != new_contract_doc_no_raw:
+        st.warning("กรุณากรอกตัวเลขเท่านั้น")
+
     st.markdown("<div style='height:1.2rem'></div>", unsafe_allow_html=True)
 
     if st.button("Save", type="primary", use_container_width=True):
         with st.spinner("กำลังบันทึก..."):
             try:
-                save_status(doc_no, user_status, purchaser_status, comment)
+                save_status(doc_no, purchaser_status, comment, new_contract_doc_no)
                 new_entry = pd.DataFrame([{
-                    "purchasing_doc_no": doc_no,
-                    "user_status":       user_status,
-                    "purchaser_status":  purchaser_status,
-                    "comment":           comment,
-                    "updated_timestamp": datetime.now(pytz.timezone("Asia/Bangkok")).replace(tzinfo=None),
+                    "purchasing_doc_no":    doc_no,
+                    "purchaser_status":     purchaser_status,
+                    "comment":              comment,
+                    "new_contract_doc_no":  new_contract_doc_no,
+                    "updated_timestamp":    datetime.now(
+                        pytz.timezone("Asia/Bangkok")
+                    ).replace(tzinfo=None),
                 }])
                 df = st.session_state.saved_data
                 df = df[df["purchasing_doc_no"] != doc_no]
@@ -544,6 +567,13 @@ with col_form:
 with col_table:
     df_saved = st.session_state.saved_data
     count = len(df_saved)
+
+    # ── join contract_name from df_docs ──
+    df_display = df_saved.merge(
+        df_docs[["purchasing_doc_no", "contract_name"]],
+        on="purchasing_doc_no",
+        how="left",
+    )
 
     # ── section header with count badge ──
     st.markdown(
@@ -559,25 +589,26 @@ with col_table:
         unsafe_allow_html=True,
     )
 
-    if df_saved.empty:
+    if df_display.empty:
         st.warning("ยังไม่มีข้อมูล")
     else:
         st.dataframe(
-            df_saved,
+            df_display,
             use_container_width=True,
             hide_index=True,
             column_config={
-                "purchasing_doc_no": st.column_config.TextColumn("Doc No"),
-                "user_status":       st.column_config.TextColumn("User"),
-                "purchaser_status":  st.column_config.TextColumn("Purchaser"),
-                "comment":           st.column_config.TextColumn("Comment", width="medium"),
-                "updated_timestamp": st.column_config.DatetimeColumn(
+                "purchasing_doc_no":   st.column_config.TextColumn("Doc No"),
+                "contract_name":       st.column_config.TextColumn("Contract Name", width="medium"),
+                "purchaser_status":    st.column_config.TextColumn("Purchaser Status"),
+                "comment":             st.column_config.TextColumn("Comment", width="medium"),
+                "new_contract_doc_no": st.column_config.TextColumn("เลขสัญญาใหม่"),
+                "updated_timestamp":   st.column_config.DatetimeColumn(
                     "Updated At (BKK)", format="DD MMM YYYY hh:mm A"
                 ),
             },
             column_order=[
-                "purchasing_doc_no", "user_status", "purchaser_status",
-                "comment", "updated_timestamp",
+                "purchasing_doc_no", "contract_name", "purchaser_status",
+                "comment", "new_contract_doc_no", "updated_timestamp",
             ],
         )
 
