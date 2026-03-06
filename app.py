@@ -239,7 +239,7 @@ def apply_style():
     /* ── Secondary button — Refresh ── */
     .stButton > button[kind="secondary"] {
         background-color: var(--surface2) !important;
-        color: var(--text-dim) !important;
+        color: var(--text) !important;
         border: 1px solid var(--border) !important;
         border-radius: var(--radius) !important;
         font-family: 'Syne', sans-serif !important;
@@ -531,14 +531,14 @@ with col_form:
     new_contract_doc_no_raw = st.text_input(
         "เลขสัญญาใหม่ (Purchasing Doc No ใหม่)",
         value=existing_new_doc,
-        placeholder="ตัวเลขเท่านั้น เช่น 4500012345",
+        placeholder=" เช่น 4500012345",
         max_chars=20,
     )
 
     # strip non-digit characters
     new_contract_doc_no = "".join(filter(str.isdigit, new_contract_doc_no_raw))
     if new_contract_doc_no_raw and new_contract_doc_no != new_contract_doc_no_raw:
-        st.warning("กรุณากรอกตัวเลขเท่านั้น")
+        st.warning("กรุณากรอกตัวเลขครับ")
 
     st.markdown("<div style='height:1.2rem'></div>", unsafe_allow_html=True)
 
