@@ -423,9 +423,13 @@ def load_saved():
 def save_status(merged_df: pd.DataFrame):
     """Write merged dataframe to Delta table — one round-trip only."""
     opts = storage_options()
+    df = merged_df.copy()
+    df["updated_timestamp"] = pd.to_datetime(
+        df["updated_timestamp"]
+    ).dt.tz_localize(None).astype("datetime64[us]")
     write_deltalake(
         f"{ONELAKE_BASE}/gold_manual_contract_status",
-        merged_df,
+        df,
         mode="overwrite",
         storage_options=opts,
     )
