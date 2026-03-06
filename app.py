@@ -148,11 +148,11 @@ def apply_style():
         flex-wrap: wrap !important;
     }
     .stRadio > div > label {
-        background-color: #3d3d45 !important;
-        border: 1px solid rgba(255,255,255,0.15) !important;
+        background-color: var(--surface2) !important;
+        border: 1px solid var(--border) !important;
         border-radius: 100px !important;
         padding: 0.35rem 1rem !important;
-        color: var(--text-mid) !important;
+        color: var(--text-dim) !important;
         font-size: 0.8rem !important;
         text-transform: none !important;
         letter-spacing: 0.02em !important;
@@ -239,7 +239,7 @@ def apply_style():
     /* ── Secondary button — Refresh ── */
     .stButton > button[kind="secondary"] {
         background-color: var(--surface2) !important;
-        color: var(--text) !important;
+        color: var(--text-dim) !important;
         border: 1px solid var(--border) !important;
         border-radius: var(--radius) !important;
         font-family: 'Syne', sans-serif !important;
@@ -496,13 +496,10 @@ with col_form:
 
     st.markdown("<div style='height:0.8rem'></div>", unsafe_allow_html=True)
 
-    PURCHASER_OPTIONS = ["ต่อสัญญา", "ไม่ต่อสัญญา", "ยกเลิกสัญญาก่อนกำหนด", ""]
-
-    purchaser_status = st.radio(
+    purchaser_status = st.selectbox(
         "Purchaser Status",
-        PURCHASER_OPTIONS,
-        format_func=lambda x: x if x != "" else "○  ว่าง",
-        horizontal=True,
+        ["", "ต่อสัญญา", "ไม่ต่อสัญญา", "ยกเลิกสัญญาก่อนกำหนด"],
+        format_func=lambda x: "○  ว่าง" if x == "" else x,
     )
 
     st.markdown("<div style='height:0.8rem'></div>", unsafe_allow_html=True)
@@ -531,14 +528,14 @@ with col_form:
     new_contract_doc_no_raw = st.text_input(
         "เลขสัญญาใหม่ (Purchasing Doc No ใหม่)",
         value=existing_new_doc,
-        placeholder=" เช่น 4500012345",
+        placeholder="ตัวเลขเท่านั้น เช่น 4500012345",
         max_chars=20,
     )
 
     # strip non-digit characters
     new_contract_doc_no = "".join(filter(str.isdigit, new_contract_doc_no_raw))
     if new_contract_doc_no_raw and new_contract_doc_no != new_contract_doc_no_raw:
-        st.warning("กรุณากรอกตัวเลขครับ")
+        st.warning("กรุณากรอกตัวเลขเท่านั้น")
 
     st.markdown("<div style='height:1.2rem'></div>", unsafe_allow_html=True)
 
