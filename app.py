@@ -239,7 +239,7 @@ def apply_style():
     /* ── Secondary button — Refresh ── */
     .stButton > button[kind="secondary"] {
         background-color: var(--surface2) !important;
-        color: var(--text-dim) !important;
+        color: #ffffff !important;
         border: 1px solid var(--border) !important;
         border-radius: var(--radius) !important;
         font-family: 'Syne', sans-serif !important;
