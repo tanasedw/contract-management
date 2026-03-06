@@ -152,7 +152,7 @@ def apply_style():
         border: 1px solid var(--border) !important;
         border-radius: 100px !important;
         padding: 0.35rem 1rem !important;
-        color: #7a7570 !important;
+        color: rgba(122, 117, 112, 0.6) !important;
         font-size: 0.8rem !important;
         text-transform: none !important;
         letter-spacing: 0.02em !important;
