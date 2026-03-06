@@ -149,7 +149,7 @@ def apply_style():
     }
     .stRadio > div > label {
         background-color: #3d3d45 !important;
-        border: 1px solid var(--border) !important;
+        border: 1px solid rgba(255,255,255,0.15) !important;
         border-radius: 100px !important;
         padding: 0.35rem 1rem !important;
         color: var(--text-mid) !important;
