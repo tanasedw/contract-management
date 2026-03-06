@@ -421,20 +421,14 @@ def load_saved():
             "comment", "new_contract_doc_no", "updated_timestamp",
         ])
 
-def save_status(
-    doc_no: str,
-    purchaser_status: str,
-    comment: str,
-    new_contract_doc_no: str,
-):
+def save_status(merged_df: pd.DataFrame):
     opts = storage_options()
-    new_row = pd.DataFrame([{
-        "purchasing_doc_no":    doc_no,
-        "purchaser_status":     purchaser_status,
-        "comment":              comment,
-        "new_contract_doc_no":  new_contract_doc_no,
-        "updated_timestamp":    datetime.now(pytz.timezone("Asia/Bangkok")),
-    }])
+    write_deltalake(
+        f"{ONELAKE_BASE}/gold_manual_contract_status",
+        merged_df,
+        mode="overwrite",
+        storage_options=opts,
+    )
     try:
         existing = DeltaTable(
             f"{ONELAKE_BASE}/gold_manual_contract_status",
@@ -539,27 +533,7 @@ with col_form:
 
     st.markdown("<div style='height:1.2rem'></div>", unsafe_allow_html=True)
 
-    if st.button("Save", type="primary", use_container_width=True):
-        with st.spinner("กำลังบันทึก..."):
-            try:
-                save_status(doc_no, purchaser_status, comment, new_contract_doc_no)
-                new_entry = pd.DataFrame([{
-                    "purchasing_doc_no":    doc_no,
-                    "purchaser_status":     purchaser_status,
-                    "comment":              comment,
-                    "new_contract_doc_no":  new_contract_doc_no,
-                    "updated_timestamp":    datetime.now(
-                        pytz.timezone("Asia/Bangkok")
-                    ).replace(tzinfo=None),
-                }])
-                df = st.session_state.saved_data
-                df = df[df["purchasing_doc_no"] != doc_no]
-                df = pd.concat([new_entry, df], ignore_index=True)
-                st.session_state.saved_data = df
-                st.toast(f"Saved — {doc_no}", icon="✅")
-                st.rerun()
-            except Exception as e:
-                st.error(f"Error: {e}")
+    st.button
 
 with col_table:
     df_saved = st.session_state.saved_data
