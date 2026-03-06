@@ -148,7 +148,7 @@ def apply_style():
         flex-wrap: wrap !important;
     }
     .stRadio > div > label {
-        background-color: var(--surface2) !important;
+        background-color: #2a2a30 !important;
         border: 1px solid var(--border) !important;
         border-radius: 100px !important;
         padding: 0.35rem 1rem !important;
