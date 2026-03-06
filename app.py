@@ -412,7 +412,6 @@ def load_saved():
         for col in ["comment", "new_contract_doc_no"]:
             if col not in df.columns:
                 df[col] = ""
-        # drop legacy user_status if present
         df = df.drop(columns=["user_status"], errors="ignore")
         return df
     except Exception:
@@ -422,6 +421,7 @@ def load_saved():
         ])
 
 def save_status(merged_df: pd.DataFrame):
+    """Write merged dataframe to Delta table — one round-trip only."""
     opts = storage_options()
     write_deltalake(
         f"{ONELAKE_BASE}/gold_manual_contract_status",
@@ -429,30 +429,6 @@ def save_status(merged_df: pd.DataFrame):
         mode="overwrite",
         storage_options=opts,
     )
-    try:
-        existing = DeltaTable(
-            f"{ONELAKE_BASE}/gold_manual_contract_status",
-            storage_options=opts
-        ).to_pandas()
-        existing = existing.drop(columns=["user_status"], errors="ignore")
-        for col in ["comment", "new_contract_doc_no"]:
-            if col not in existing.columns:
-                existing[col] = ""
-        existing = existing[existing["purchasing_doc_no"] != doc_no]
-        merged = pd.concat([existing, new_row], ignore_index=True)
-        write_deltalake(
-            f"{ONELAKE_BASE}/gold_manual_contract_status",
-            merged,
-            mode="overwrite",
-            storage_options=opts,
-        )
-    except Exception:
-        write_deltalake(
-            f"{ONELAKE_BASE}/gold_manual_contract_status",
-            new_row,
-            mode="append",
-            storage_options=opts,
-        )
 
 # ───────────────────────────────────────────
 # SESSION STATE
@@ -498,7 +474,7 @@ with col_form:
 
     st.markdown("<div style='height:0.8rem'></div>", unsafe_allow_html=True)
 
-    # ── pre-fill comment ──
+    # ── pre-fill comment & new doc ──
     existing_comment = ""
     existing_new_doc = ""
     if doc_no and not st.session_state.saved_data.empty:
@@ -526,14 +502,33 @@ with col_form:
         max_chars=20,
     )
 
-    # strip non-digit characters
     new_contract_doc_no = "".join(filter(str.isdigit, new_contract_doc_no_raw))
     if new_contract_doc_no_raw and new_contract_doc_no != new_contract_doc_no_raw:
         st.warning("กรุณากรอกตัวเลขเท่านั้น")
 
     st.markdown("<div style='height:1.2rem'></div>", unsafe_allow_html=True)
 
-    st.button
+    if st.button("Save", type="primary", use_container_width=True):
+        with st.spinner("กำลังบันทึก..."):
+            try:
+                new_entry = pd.DataFrame([{
+                    "purchasing_doc_no":    doc_no,
+                    "purchaser_status":     purchaser_status,
+                    "comment":              comment,
+                    "new_contract_doc_no":  new_contract_doc_no,
+                    "updated_timestamp":    datetime.now(
+                        pytz.timezone("Asia/Bangkok")
+                    ).replace(tzinfo=None),
+                }])
+                df = st.session_state.saved_data
+                df = df[df["purchasing_doc_no"] != doc_no]
+                df = pd.concat([new_entry, df], ignore_index=True)
+                save_status(df)
+                st.session_state.saved_data = df
+                st.toast(f"Saved — {doc_no}", icon="✅")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Error: {e}")
 
 with col_table:
     df_saved = st.session_state.saved_data
