@@ -67,16 +67,15 @@ def confirm(req: func.HttpRequest) -> func.HttpResponse:
         ).to_pandas()
 
         new_entry = pd.DataFrame([{
-            "purchasing_doc_no":    doc_no,
-            "user_status":          action,
-            "comment":              "",
-            "new_contract_doc_no":  "",
-            "updated_timestamp":    datetime.now(
-                pytz.timezone("Asia/Bangkok")
-            ).strftime("%Y-%m-%d %H:%M:%S"),
+            "purchasing_doc_no":     doc_no,
+            "user_status":           action,
+            "purchaser_status":      "",
+            "comment":               "",
+            "new_purchasing_doc_no": "",
+            "update_at":             datetime.now(pytz.timezone("Asia/Bangkok")),
         }])
 
-        existing["updated_timestamp"] = existing["updated_timestamp"].astype(str).str[:19]
+        existing["update_at"] = pd.to_datetime(existing["update_at"], errors="coerce")
         merged = pd.concat(
             [existing[existing["purchasing_doc_no"] != doc_no], new_entry],
             ignore_index=True
