@@ -51,7 +51,7 @@ def confirm(req: func.HttpRequest) -> func.HttpResponse:
     action = req.params.get("action", "")
     sig    = req.params.get("sig", "")
 
-    VALID_ACTIONS = ["ต่อสัญญา", "ไม่ต่อสัญญา", "ยกเลิกสัญญาก่อนกำหนด"]
+    VALID_ACTIONS = ["ต่อสัญญา", "ไม่ต่อสัญญา"]
 
     if not doc_no or action not in VALID_ACTIONS:
         return func.HttpResponse("Invalid request", status_code=400)
@@ -68,7 +68,7 @@ def confirm(req: func.HttpRequest) -> func.HttpResponse:
 
         new_entry = pd.DataFrame([{
             "purchasing_doc_no":    doc_no,
-            "purchaser_status":     action,
+            "user_status":          action,
             "comment":              "",
             "new_contract_doc_no":  "",
             "updated_timestamp":    datetime.now(
