@@ -1,23 +1,21 @@
-# Contract Management — Purchaser Status
+# Contract Management — Email Button
 
-ระบบบันทึกสถานะสัญญาสำหรับฝ่ายจัดซื้อ ช่วยให้ผู้ใช้สามารถระบุสถานะของแต่ละ Purchasing Document ได้ว่า ต่อสัญญา / ไม่ต่อสัญญา / ยกเลิกสัญญาก่อนกำหนด พร้อมเพิ่มหมายเหตุและเลขสัญญาใหม่ได้
+ระบบปุ่มกดในอีเมล alert สำหรับฝ่ายจัดซื้อ เมื่อได้รับอีเมลแจ้งเตือนสัญญา ผู้ใช้สามารถกดปุ่มในอีเมลเพื่อระบุสถานะได้ทันที โดยไม่ต้องเข้าระบบใด ๆ
 
-ข้อมูลถูกดึงจาก Microsoft Fabric Lakehouse (Delta Lake) และบันทึกกลับแบบ Real-time
+ข้อมูลจะถูกบันทึกลง Microsoft Fabric Lakehouse (Delta Lake) แบบ Real-time
 
-## Features
-- เลือก Purchasing Doc No แล้วกรอก Purchaser Status ได้ทันที
-- เพิ่ม Comment และเลขสัญญาใหม่
-- แสดงรายการที่บันทึกแล้วพร้อม Contract Name และเวลาอัปเดต (Asia/Bangkok)
-- เชื่อมต่อ Microsoft Fabric OneLake ผ่าน Azure AD
+## How it works
+1. ระบบส่งอีเมล alert พร้อมปุ่ม เช่น "ต่อสัญญา / ไม่ต่อสัญญา / ยกเลิกสัญญาก่อนกำหนด"
+2. แต่ละปุ่มคือ URL ที่ฝัง `doc_no`, `action`, และ `sig` (HMAC signature)
+3. เมื่อกดปุ่ม Azure Function จะตรวจสอบ signature แล้วบันทึกสถานะลง Fabric Lakehouse
+4. แสดงหน้ายืนยันให้ผู้ใช้ทราบว่าบันทึกเรียบร้อย
 
 ## Tech Stack
-- Python / Streamlit
+- Python / Azure Functions
 - Delta Lake (deltalake)
 - Microsoft Fabric Lakehouse / OneLake
 - Azure AD (Client Credentials)
-
-## Demo
-https://uuxzr59zpuxokqkqtrq763.streamlit.app/
+- HMAC SHA-256 (ป้องกัน request ปลอม)
 
 ## Source Code
 https://github.com/tanasedw/contract-management
