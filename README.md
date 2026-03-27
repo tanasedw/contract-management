@@ -10,7 +10,19 @@
 2. แต่ละปุ่มคือ URL ที่ฝัง `doc_no`, `action`, และ `sig` (HMAC signature)
 3. เมื่อกดปุ่ม Azure Function จะตรวจสอบ signature แล้วบันทึกสถานะลงคอลัมน์ `user_status` ใน Delta Table `gold_manual_contract_status`
 4. แสดงหน้ายืนยันให้ผู้ใช้ทราบว่าบันทึกเรียบร้อย
-5. ข้อมูลแสดงผลบน Streamlit Dashboard (โปรเจค `contract_management_streamlit`)
+5. `user_status` ถูกใช้เป็นเงื่อนไขป้องกันการส่งเมลซ้ำ (join real-time จาก `gold_manual_contract_status`)
+6. ข้อมูลแสดงผลบน Streamlit Dashboard ผ่าน pipeline ที่ join เข้า `gold_contract_management`
+
+## Delta Table Schema — `gold_manual_contract_status`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `purchasing_doc_no` | String | เลขที่สัญญา |
+| `user_status` | String | สถานะจากปุ่มในอีเมล (ต่อสัญญา / ไม่ต่อสัญญา) |
+| `purchaser_status` | String | สถานะจากฝ่ายจัดซื้อ (กรอกบน Streamlit) |
+| `comment` | String | หมายเหตุ |
+| `new_purchasing_doc_no` | String | เลขสัญญาใหม่ (กรณีต่อสัญญา) |
+| `update_at` | Timestamp | เวลาที่อัปเดตล่าสุด (Asia/Bangkok) |
 
 ## Tech Stack
 
