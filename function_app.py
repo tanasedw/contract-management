@@ -66,12 +66,17 @@ def confirm(req: func.HttpRequest) -> func.HttpResponse:
             storage_options=opts
         ).to_pandas()
 
+        prev = existing[existing["purchasing_doc_no"] == doc_no]
+        prev_purchaser_status      = prev["purchaser_status"].iloc[0]      if len(prev) and "purchaser_status"      in prev.columns else ""
+        prev_comment               = prev["comment"].iloc[0]               if len(prev) and "comment"               in prev.columns else ""
+        prev_new_purchasing_doc_no = prev["new_purchasing_doc_no"].iloc[0] if len(prev) and "new_purchasing_doc_no" in prev.columns else ""
+
         new_entry = pd.DataFrame([{
             "purchasing_doc_no":     doc_no,
             "user_status":           action,
-            "purchaser_status":      "",
-            "comment":               "",
-            "new_purchasing_doc_no": "",
+            "purchaser_status":      prev_purchaser_status      if pd.notna(prev_purchaser_status)      else "",
+            "comment":               prev_comment               if pd.notna(prev_comment)               else "",
+            "new_purchasing_doc_no": prev_new_purchasing_doc_no if pd.notna(prev_new_purchasing_doc_no) else "",
             "update_at":             datetime.now(pytz.timezone("Asia/Bangkok")),
         }])
 
