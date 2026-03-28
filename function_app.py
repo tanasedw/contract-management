@@ -75,6 +75,13 @@ def confirm(req: func.HttpRequest) -> func.HttpResponse:
             "update_at":             datetime.now(pytz.timezone("Asia/Bangkok")),
         }])
 
+        existing = existing.rename(columns={
+            "updated_timestamp":  "update_at",
+            "new_contract_doc_no": "new_purchasing_doc_no",
+        })
+        for col in ["purchaser_status", "update_at", "new_purchasing_doc_no"]:
+            if col not in existing.columns:
+                existing[col] = None
         existing["update_at"] = pd.to_datetime(existing["update_at"], errors="coerce")
         merged = pd.concat(
             [existing[existing["purchasing_doc_no"] != doc_no], new_entry],
