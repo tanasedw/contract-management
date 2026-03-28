@@ -4,7 +4,7 @@ import requests
 import pytz
 from deltalake import write_deltalake, DeltaTable
 from datetime import datetime
-import hashlib, hmac, os
+import hashlib, hmac, os, traceback
 
 app = func.FunctionApp()
 
@@ -107,4 +107,4 @@ def confirm(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse(html, mimetype="text/html", status_code=200)
 
     except Exception as e:
-        return func.HttpResponse(f"Error: {e}", status_code=500)
+        return func.HttpResponse(f"Error: {e}\n\n{traceback.format_exc()}", status_code=500)
