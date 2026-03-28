@@ -107,4 +107,8 @@ def confirm(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse(html, mimetype="text/html", status_code=200)
 
     except Exception as e:
-        return func.HttpResponse(f"Error: {e}\n\n{traceback.format_exc()}", status_code=500)
+        return func.HttpResponse(
+            f"<pre>Error: {e}\n\n{traceback.format_exc()}</pre>",
+            mimetype="text/html",
+            status_code=500
+        )
