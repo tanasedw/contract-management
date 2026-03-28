@@ -92,6 +92,7 @@ def confirm(req: func.HttpRequest) -> func.HttpResponse:
             f"{ONELAKE_BASE}/gold_manual_contract_status",
             merged,
             mode="overwrite",
+            schema_mode="overwrite",
             storage_options=opts,
         )
 
