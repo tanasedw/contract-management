@@ -1,3 +1,4 @@
+# test revise before deploy 4
 import azure.functions as func
 import pandas as pd
 import requests
@@ -104,7 +105,7 @@ def confirm(req: func.HttpRequest) -> func.HttpResponse:
         html = f"""
         <html><body style="font-family:Segoe UI,sans-serif;text-align:center;padding:60px;color:#333">
             <div style="font-size:48px">✅</div>
-            <h2>บันทึกเรียบร้อย</h2>
+            <h2>บันทึกเรียบร้อย TEST VS CODE</h2>
             <p>สัญญา <strong>{doc_no}</strong> อัพเดทสถานะเป็น <strong>{action}</strong> แล้วครับ</p>
             <p style="color:#999;font-size:13px">ท่านสามารถปิดหน้านี้ได้เลย</p>
         </body></html>

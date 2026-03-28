@@ -24,9 +24,15 @@
 | `new_purchasing_doc_no` | String | เลขสัญญาใหม่ (กรณีต่อสัญญา) |
 | `update_at` | Timestamp | เวลาที่อัปเดตล่าสุด (Asia/Bangkok) |
 
+## Deployment
+
+- **Plan**: Azure Functions Flex Consumption (Linux, Southeast Asia, 2048 MB)
+- **Deploy**: VS Code Azure Functions extension → Deploy to Function App
+- ครั้งแรก Oryx build ติดตั้ง packages (~10-20 นาที) ครั้งต่อไปเร็วขึ้นเพราะ cache
+
 ## Tech Stack
 
-- Python / Azure Functions
+- Python / Azure Functions (Flex Consumption)
 - Delta Lake (deltalake)
 - Microsoft Fabric Lakehouse / OneLake
 - Azure AD (Client Credentials)
