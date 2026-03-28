@@ -17,34 +17,13 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     permissions:
       contents: read
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Setup Python version
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Cache pip packages
-        uses: actions/cache@v4
-        with:
-          path: .python_packages
-          key: ${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('requirements.txt') }}
-
-      - name: Install dependencies (if cache miss)
-        run: |
-          if [ ! -d ".python_packages/lib/site-packages" ]; then
-            pip install --target=".python_packages/lib/site-packages" -r requirements.txt
-            find .python_packages -type d -name "tests"       -exec rm -rf {} + 2>/dev/null; true
-            find .python_packages -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null; true
-            find .python_packages -name "*.pyc" -delete 2>/dev/null; true
-            find .python_packages -name "*.pyo" -delete 2>/dev/null; true
-          fi
 
       - name: 'Deploy to Azure Functions'
         uses: Azure/functions-action@v1
@@ -54,5 +33,5 @@ jobs:
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_4C920399A69A4682A381AB19670398B2 }}
-          scm-do-build-during-deployment: false
-          enable-oryx-build: false
+          scm-do-build-during-deployment: true
+          enable-oryx-build: true
